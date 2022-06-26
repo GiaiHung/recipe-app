@@ -26,7 +26,7 @@ const Recipe = () => {
     getInfo()
   }, [id])
 
-  if(loading) {
+  if (loading) {
     return (
       <Loading />
     )
@@ -44,16 +44,18 @@ const Recipe = () => {
         <img src={image} alt={title} />
       </div>
       <Info>
-        <Button
-          className={activeTab === 'instructions' ? 'active' : ''}
-          onClick={() => setActiveTab('instructions')}>
-          Instructions
-        </Button>
-        <Button
-          className={activeTab === 'ingredients' ? 'active' : ''}
-          onClick={() => setActiveTab('ingredients')}>
-          Ingredients
-        </Button>
+        <div className="btn-container">
+          <Button
+            className={activeTab === 'instructions' ? 'active' : ''}
+            onClick={() => setActiveTab('instructions')}>
+            Instructions
+          </Button>
+          <Button
+            className={activeTab === 'ingredients' ? 'active' : ''}
+            onClick={() => setActiveTab('ingredients')}>
+            Ingredients
+          </Button>
+        </div>
         {activeTab === 'instructions' && <div>
           <h3 dangerouslySetInnerHTML={{ __html: summary }}></h3>
           <br />
@@ -140,14 +142,19 @@ const RecipeWrapper = styled.div`
 
 const Info = styled.div`
   margin-left: 5rem;
+
+  .btn-container {
+    display: flex;
+  }
+
   @media (max-width: 1068px) {
-    margin-top: 3rem;
+    margin-top: 1rem;
     margin-left: 1rem;
   }
 `;
 
 const Button = styled.button`
-  margin: 1.5rem 2rem;  
+  margin: 1rem;  
   font-size: 3vmin;
   padding: .75rem 1rem;
   border-radius: 1.5rem;
