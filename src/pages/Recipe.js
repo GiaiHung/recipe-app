@@ -1,179 +1,165 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
-
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import Loading from '../components/Loading'
+import { motion } from 'framer-motion'
 
 const Recipe = () => {
-  const { id } = useParams()
-  const [info, setInfo] = useState({})
-  const [activeTab, setActiveTab] = useState('instructions')
-  const [loading, setLoading] = useState(false)
+    const { name } = useParams()
+    const [activeTab, setActiveTab] = useState('instructions')
+    const [recipe, setRecipe] = useState({})
+    const [loading, setLoading] = useState(false)
 
-  const getInfo = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${process.env.REACT_APP_ACCESSKEY}`)
-      const data = await response.json()
-      setInfo(data)
-      setLoading(false)
-    } catch (error) {
-      console.log('error');
+    const getRecipe = async () => {
+        setLoading(true)
+        try {
+            const response = await fetch(`https://api.spoonacular.com/recipes/${name}/information?apiKey=${process.env.REACT_APP_ACCESSKEY}`)
+            const data = await response.json()
+            setRecipe(data)
+            setLoading(false)
+        } catch (error) {
+            console.log('error');
+        }
     }
-  }
 
-  useEffect(() => {
-    getInfo()
-  }, [id])
+    useEffect(() => {
+        getRecipe()
+    }, [name])
 
-  if (loading) {
+    if (loading) return <Loading />
+
+    const { title, image, instructions, summary, extendedIngredients } = recipe
+
     return (
-      <Loading />
+        <Flex>
+            <h3>{title}</h3>
+            <img src={image} alt={title} />
+            <Info>
+                <div className='btn-container'>
+                    <Button
+                        className={activeTab === 'instructions' ? 'active' : ''}
+                        onClick={() => setActiveTab('instructions')}
+                    >
+                        Instructions
+                    </Button>
+                    <Button
+                        className={activeTab === 'ingredients' ? 'active' : ''}
+                        onClick={() => setActiveTab('ingredients')}
+                    >
+                        Ingredients
+                    </Button>
+                </div>
+                {activeTab === 'instructions' &&
+                    <motion.div
+                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <h4 dangerouslySetInnerHTML={{ __html: instructions }}></h4>
+                        <h4 dangerouslySetInnerHTML={{ __html: summary }}></h4>
+                    </motion.div>}
+                {activeTab === 'ingredients' &&
+                    <motion.ul
+                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {
+                            extendedIngredients.map(({ id, original }) => (
+                                <li key={id}>{original}</li>
+                            ))
+                        }
+                    </motion.ul>}
+            </Info>
+        </Flex>
     )
-  }
-
-  const { id: idInfo, image, title, summary, instructions, extendedIngredients } = info
-
-  return (
-    <RecipeWrapper key={idInfo} >
-      <Link to='/'>
-        <HomeBtn>Back to home</HomeBtn>
-      </Link>
-      <div>
-        <h4>{title}</h4>
-        <img src={image} alt={title} />
-      </div>
-      <Info>
-        <div className="btn-container">
-          <Button
-            className={activeTab === 'instructions' ? 'active' : ''}
-            onClick={() => setActiveTab('instructions')}>
-            Instructions
-          </Button>
-          <Button
-            className={activeTab === 'ingredients' ? 'active' : ''}
-            onClick={() => setActiveTab('ingredients')}>
-            Ingredients
-          </Button>
-        </div>
-        {activeTab === 'instructions' && <div>
-          <h3 dangerouslySetInnerHTML={{ __html: summary }}></h3>
-          <br />
-          <h3 dangerouslySetInnerHTML={{ __html: instructions }}></h3>
-        </div>}
-        <br />
-        {activeTab === 'ingredients' && <ul>
-          {
-            extendedIngredients.map(ingredient => {
-              const { id, original } = ingredient
-              return (
-                <li key={id}>
-                  {original}
-                </li>
-              )
-            })
-          }
-        </ul>}
-      </Info>
-    </RecipeWrapper >
-  )
 }
 
-const RecipeWrapper = styled.div`
-  margin: 2rem auto;
-  display: flex;
-  flex-direction: column;
-  width: 90vw;
-  max-width: 1080px;
-
-  img {
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    min-height: 15rem;
-    object-fit: cover;
-    border-radius: 2rem;
-  }
-
-  h4 {
-    text-align: center;
-    font-size: 2.5rem;
+const Flex = styled.div`
     margin: 2rem auto;
-  }
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
 
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 300;
-  }
+    .btn-container {
+        width: 450px;
+        margin: auto;
+        display: flex;
+        gap: 1rem;
+        justify-content: space-around;
+        align-items: center;
+    }
 
-  .active {
-    background: linear-gradient(35deg, #494949, #313131);
-    color: #fff;
-  }
-
-  a {
-    color: blueviolet;
-  }
-
-  ul {
-    list-style-type: disc;
-    font-size: 1.75rem;
-    font-weight: 300;
-  }
-
-  @media screen and (max-width: 900px) {
     img {
-      max-width: 350px;
+        min-width: 23rem;
+        object-fit: cover;
+        border-radius: 2rem;
     }
 
     h4 {
-      font-size: 1.5rem
+        margin: auto;
+        width: 80vw;
+        max-width: 900px;
+        font-weight: 300;
+        font-size: 1.5rem;
     }
 
-    h3 {
-      font-size: 1rem;
+    .active {
+        background-color: #313131;
+        color: #fff;
     }
 
-    ul {
-      font-size: 1rem;
+    @media screen and (max-width: 876px) {
+        img {
+            max-width: 17rem;
+        }
+
+        h3 {
+            font-size: 1rem;
+        }
+
+        .btn-container {
+            font-size: 1rem;
+        }
     }
-  }
-`;
+`
 
 const Info = styled.div`
-  margin-left: 5rem;
-
-  .btn-container {
     display: flex;
-  }
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1.2rem;
 
-  @media (max-width: 1068px) {
-    margin-top: 1rem;
-    margin-left: 1rem;
-  }
-`;
+    li {
+        list-style-type: disc;
+        font-weight: 300;
+        font-size: 1.5rem;
+    }
 
-const Button = styled.button`
-  margin: 1rem;  
-  font-size: 3vmin;
-  padding: .75rem 1rem;
-  border-radius: 1.5rem;
-  color: linear-gradient(35deg, #494949, #313131);
-  background-color: transparent;
-  border: 2px solid #313131;
-  cursor: pointer
-`;
+    @media screen and (max-width: 876px) {
+        li {
+            width: 80vw;
+            margin: auto;
+            font-size: 1rem;
+        }
 
-const HomeBtn = styled.button`
-    font-size: 1rem;
-    background-color: #759612;
-    padding: .75rem 1rem;
-    border: none;
-    color: #fff;
-    margin: 1rem auto;
-    display: flex;
-    align-items: center;
-    border-radius: 10px;
+        h4 {
+            font-size: 1rem;
+        }
+    }
+`
+
+const Button = styled.div`
+    padding: 0.75rem 1rem;
+    color: #313131;
+    background-color: transparent;
+    border: 2px solid #313131;
+    border-radius: 2rem;
     cursor: pointer;
 `
 

@@ -1,57 +1,45 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-
 import styled from 'styled-components'
-
-import { motion } from 'framer-motion'
 import Loading from '../components/Loading'
+import { motion } from 'framer-motion'
 
 const Cuisine = () => {
+    const { type } = useParams()
+    const [cuisines, setCuisines] = useState([])
     const [loading, setLoading] = useState(false)
-    const [cuisine, setCuisine] = useState([])
-    const params = useParams()
 
-    const getSearch = async (name) => {
-        const check = localStorage.getItem(`${params.type}`)
-        if (check) {
-            switch (params.type) {
-                case 'italian': {
-                    setCuisine(JSON.parse(check))
-                }
-                case 'chinese': {
-                    setCuisine(JSON.parse(check))
-                }
-                case 'thai': {
-                    setCuisine(JSON.parse(check))
-                }
-                case 'american': {
-                    setCuisine(JSON.parse(check))
-                }
+    const getCuisines = async () => {
+        setLoading(true)
+
+        try {
+            const check = localStorage.getItem(type)
+
+            if (check) {
+                setCuisines(JSON.parse(check))
+            } else {
+                const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.REACT_APP_ACCESSKEY}&cuisine=${type}`)
+                const data = await response.json()
+                setCuisines(data.results)
+                localStorage.setItem(type, JSON.stringify(data.results))
             }
-        } else {
-            setLoading(true)
-            const response = await fetch(`
-            https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.REACT_APP_ACCESSKEY}&cuisine=${name}
-            `)
-            const data = await response.json()
-            setCuisine(data.results)
-            localStorage.setItem(`${params.type}`, JSON.stringify(data.results))
+
             setLoading(false)
+        } catch (error) {
+            console.log('error');
         }
     }
 
     useEffect(() => {
-        getSearch(params.type)
-    }, [params.type])
+        getCuisines()
+    }, [type])
 
-    if (loading) {
-        return <Loading />
-    }
+    if (loading) return <Loading />
 
     return (
         <>
             <Link to='/'>
-                <HomeBtn>Back to home</HomeBtn>
+                <Button>Back to home</Button>
             </Link>
             <Grid
                 animate={{ opacity: 1 }}
@@ -59,17 +47,12 @@ const Cuisine = () => {
                 transition={{ duration: 0.75 }}
             >
                 {
-                    cuisine.map(item => {
-                        const { id, title, image } = item
-                        return (
-                            <Card key={id}>
-                                <Link to={`/recipe/${id}`}>
-                                    <img src={image} alt={title} />
-                                    <h4>{title}</h4>
-                                </Link>
-                            </Card>
-                        )
-                    })
+                    cuisines.map(({ id, title, image }) => (
+                        <Card key={id}>
+                            <img src={image} alt={title} />
+                            <h4>{title}</h4>
+                        </Card>
+                    ))
                 }
             </Grid>
         </>
@@ -78,35 +61,55 @@ const Cuisine = () => {
 
 const Grid = styled(motion.div)`
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-    grid-gap: 2rem;
-    text-align: center;
+    grid-template-columns: repeat(auto-fit, minmax(368px, 1fr));
+    gap: 1rem;
+    margin: 2rem auto;
 `
 
 const Card = styled.div`
+    border-radius: 2rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
     img {
-        width: min(400px, 100%);
+        min-width: 20rem;
         border-radius: 2rem;
+        object-fit: cover;
     }
 
     h4 {
         text-align: center;
-        padding: 1rem;
-        color: #313131;
+        width: 90%;
+        margin: auto;
+    }
+
+    @media screen and (max-width: 768px) {
+        img {
+            max-width: 18rem;
+        } 
     }
 `
 
-const HomeBtn = styled.button`
-    font-size: 1rem;
-    background-color: #759612;
+export const Button = styled.button`
+    margin: 1rem auto;
     padding: .75rem 1rem;
     border: none;
-    color: #fff;
-    margin: 2rem auto;
+    border-radius: 2rem;
+    background-color: blueviolet;
+    color: #eee;
+    font-weight: 500;
     display: flex;
     align-items: center;
-    border-radius: 10px;
     cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-size: 1.2rem;
+
+    :hover {
+        color: #fff;
+        background-color: #3f39bd;
+    }
 `
 
 export default Cuisine

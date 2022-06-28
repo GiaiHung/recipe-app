@@ -1,44 +1,49 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import Loading from '../components/Loading'
+
+import { Button } from './Cuisine'
 
 import styled from 'styled-components'
 
 const SearchPage = () => {
-    const [searched, setSearched] = useState([])
-    const params = useParams()
+    const { input } = useParams()
+    const [search, setSearch] = useState([])
+    const [loading, setLoading] = useState(false)
 
-    const getSearched = async (name) => {
-        const response = await fetch(`
-        https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.REACT_APP_ACCESSKEY}&query=${name}
-        `)
-        const data = await response.json()
-        setSearched(data.results)
+    const getSearch = async () => {
+        setLoading(true)
+
+        try {
+            const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?apiKey=${process.env.REACT_APP_ACCESSKEY}&query=${input}`)
+            const data = await response.json()
+            setSearch(data.results)
+            setLoading(false)
+        } catch (error) {
+            console.log('error');
+        }
     }
+    console.log(search);
 
     useEffect(() => {
-        getSearched(params.search)
-    }, [params.search])
+        getSearch()
+    }, [input])
 
-    console.log(searched);
+    if (loading) return <Loading />
 
     return (
         <>
             <Link to='/'>
-                <HomeBtn>Back to home</HomeBtn>
+                <Button>Back to home</Button>
             </Link>
             <Grid>
                 {
-                    searched.map(item => {
-                        const { id, title, image } = item
-                        return (
-                            <Card key={id}>
-                                <Link to={`/recipe/${id}`}>
-                                    <img src={image} alt={title} />
-                                    <h4>{title}</h4>
-                                </Link>
-                            </Card>
-                        )
-                    })
+                    search.map(({ id, title, image }) => (
+                        <Card key={id}>
+                            <img src={image} alt={title} />
+                            <h4>{title}</h4>
+                        </Card>
+                    ))
                 }
             </Grid>
         </>
@@ -47,36 +52,35 @@ const SearchPage = () => {
 
 const Grid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-    grid-gap: 2rem;
-    text-align: center;
+    grid-template-columns: repeat(auto-fit, minmax(368px, 1fr));
+    gap: 1rem;
+    margin: 2rem auto;
 `
 
 const Card = styled.div`
+    border-radius: 2rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
     img {
-        width: min(400px, 100%);
+        min-width: 20rem;
         border-radius: 2rem;
-        cursor: pointer;
+        object-fit: cover;
     }
 
     h4 {
         text-align: center;
-        padding: 1rem;
-        color: #313131;
+        width: 90%;
+        margin: auto;
     }
-`
 
-const HomeBtn = styled.button`
-    font-size: 1rem;
-    background-color: #759612;
-    padding: .75rem 1rem;
-    border: none;
-    color: #fff;
-    margin: 2rem auto;
-    display: flex;
-    align-items: center;
-    border-radius: 10px;
-    cursor: pointer;
+    @media screen and (max-width: 768px) {
+        img {
+            max-width: 18rem;
+        } 
+    }
 `
 
 export default SearchPage

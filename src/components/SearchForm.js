@@ -5,67 +5,51 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 const SearchForm = () => {
-    const [input, setInput] = useState('')
+    const [value, setValue] = useState('')
     const navigate = useNavigate()
 
-    const handleSubmit = e => {
+    function handleSubmit(e) {
         e.preventDefault()
-        navigate(`/searched/${input}`)
-        setInput('')
+        navigate(`/searched/${value}`)
     }
 
     return (
-        <FormStyle onSubmit={handleSubmit}>
-            <div>
-                <button type='submit'>
-                    <FaSearch />
-                </button>
-                <input
-                    type="text"
-                    placeholder='Search foods...'
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                />
-            </div>
-        </FormStyle>
+        <Form onSubmit={handleSubmit}>
+            <input
+                type="text"
+                placeholder='Search...'
+                value={value}
+                onChange={e => setValue(e.target.value)}
+            />
+            <FaSearch />
+        </Form>
     )
 }
 
-const FormStyle = styled.form`
+const Form = styled.form`
+    position: relative;
     width: 70vw;
-    max-width: 500px;
-    margin: 2rem auto;
-    border-radius: 2rem;
-
-    div {
-        position: relative;
-    }
+    max-width: 450px;
+    margin: 1.5rem auto;
+    border: none;
 
     input {
-        width: 100%;
-        border-radius: 2rem;
-        background: linear-gradient(35deg, #494949, #313131);
-        text-transform: capitalize;
-        color: #aaa;
-        padding: .75rem 1.2rem;
+        padding: .75rem 1rem;
         border: none;
-        border-bottom: #999 3px solid;
+        border-bottom: 3px solid #313131;
+        width: 100%;
+        height: 100%;
     }
 
-    input::placeholder {
-        color: #aaa;
-        text-transform: capitalize;
-    }
-
-    button {
+    svg {
         position: absolute;
+        right: 3%;
         top: 50%;
         transform: translateY(-50%);
-        right: 3%;
-        color: #fff;
-        cursor: pointer;
-        background-color: transparent;
+        font-size: 1.2rem;
+        color: #6c6d70;
         border: none;
+        background-color: transparent;
     }
 `
 
