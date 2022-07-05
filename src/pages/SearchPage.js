@@ -40,8 +40,10 @@ const SearchPage = () => {
                 {
                     search.map(({ id, title, image }) => (
                         <Card key={id}>
-                            <img src={image} alt={title} />
-                            <h4>{title}</h4>
+                            <Link to={`/recipe/${id}`}>
+                                <img src={image} alt={title} />
+                                <h4>{title}</h4>
+                            </Link>
                         </Card>
                     ))
                 }
@@ -65,6 +67,9 @@ const Card = styled.div`
     gap: 1rem;
 
     img {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
         min-width: 20rem;
         border-radius: 2rem;
         object-fit: cover;

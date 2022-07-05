@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import Loading from '../components/Loading'
 import { motion } from 'framer-motion'
@@ -32,6 +32,9 @@ const Recipe = () => {
 
     return (
         <Flex>
+            <Link to='/'>
+                <Button>Back to home</Button>
+            </Link>
             <h3>{title}</h3>
             <img src={image} alt={title} />
             <Info>
@@ -79,7 +82,7 @@ const Recipe = () => {
 
 const Flex = styled.div`
     margin: 2rem auto;
-    max-width: 400px;
+    max-width: fit-content;
     display: flex;
     flex-direction: column;
     gap: 1rem;

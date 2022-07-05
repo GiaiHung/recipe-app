@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import Loading from './Loading'
 
 import { Splide, SplideSlide } from '@splidejs/react-splide'
@@ -63,9 +64,11 @@ const Popular = () => {
           veggie.map(({ id, title, image }) => (
             <SplideSlide key={id}>
               <Card>
-                <img src={image} alt={title} />
-                <h4>{title}</h4>
-                <Gradient />
+                <Link to={`/recipe/${id}`}>
+                  <img src={image} alt={title} />
+                  <h4>{title}</h4>
+                  <Gradient />
+                </Link>
               </Card>
             </SplideSlide>
           ))
